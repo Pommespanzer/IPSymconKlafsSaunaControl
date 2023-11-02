@@ -521,6 +521,20 @@ class KlafsSaunaDevice extends IPSModule
      */
     public function PowerOn()
     {
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            return;
+        }
+
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
+            $log_no_parent = $this->ReadPropertyBoolean('log_no_parent');
+            if ($log_no_parent) {
+                $this->LogMessage($this->Translate('Instance has no active gateway'), KL_WARNING);
+            }
+            return;
+        }
+
         $guid = $this->ReadPropertyString('GUID');
         $pin  = $this->ReadPropertyString('PIN');
         $data = [
@@ -570,6 +584,20 @@ class KlafsSaunaDevice extends IPSModule
      */
     public function PowerOff()
     {
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            return;
+        }
+
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
+            $log_no_parent = $this->ReadPropertyBoolean('log_no_parent');
+            if ($log_no_parent) {
+                $this->LogMessage($this->Translate('Instance has no active gateway'), KL_WARNING);
+            }
+            return;
+        }
+
         $guid     = $this->ReadPropertyString('GUID');
         $SendData = [
             'DataID'   => '{2F696B68-5663-D109-1E2F-2772B3D0A9C0}',
