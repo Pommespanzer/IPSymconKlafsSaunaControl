@@ -1,0 +1,16 @@
+{
+    "id": "{F4718E9B-550D-A56B-9A66-BEFB5703EDCC}",
+    "name": "KlafsSaunaIO",
+    "type": 1,
+    "vendor": "",
+    "aliases": [],
+    "parentRequirements": [],
+    "childRequirements": [
+        "{6156AE64-CA7A-49E1-AED4-35B31DA50CAF}"
+    ],
+    "implemented": [
+        "{2F696B68-5663-D109-1E2F-2772B3D0A9C0}"
+    ],
+    "prefix": "Klafs",
+    "url": ""
+}
