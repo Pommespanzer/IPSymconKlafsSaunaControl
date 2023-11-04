@@ -184,7 +184,7 @@ class KlafsSaunaDevice extends IPSModule
         $type = $this->ReadPropertyInteger('Type');
         switch ($type) {
             case self::$KLAFS_TYPE_SAUNA:
-                $this->MaintainVariable('SaunaSelectedTemperature', $this->Translate('Selected Temperature'), VARIABLETYPE_INTEGER, 'KlafsSauna.SaunaTemperature', $vPos++, true);
+                $this->MaintainVariable('SaunaSelectedTemperature', $this->Translate('Selected Sauna Temperature'), VARIABLETYPE_INTEGER, 'KlafsSauna.SaunaTemperature', $vPos++, true);
 
                 $this->MaintainAction('SaunaSelectedTemperature', true);
 
@@ -324,7 +324,7 @@ class KlafsSaunaDevice extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        IPS_LogMessage('Device RECV', utf8_decode($data->Buffer));
+        $this->LogMessage('Device RECV', utf8_decode($data->Buffer));
     }
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
@@ -370,6 +370,9 @@ class KlafsSaunaDevice extends IPSModule
                 } else {
                     $result = $this->PowerOff();
                 }
+
+                // get new sauna data 5 seconds after sending PowerOn/PowerOff command to KLAFS backend
+                $this->SetUpdateInterval(5000);
                 break;
             case 'Mode':
                 $result = $this->SelectMode($value);

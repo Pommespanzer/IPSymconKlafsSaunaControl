@@ -1,0 +1,37 @@
+{
+    "translations": {
+        "de": {
+            "A sauna ID (GUID) is required": "Eine Sauna ID (GUID) ist notwendig",
+            "A sauna type is required": "Ein Sauna-Typ ist notwendig",
+            "Power": "Zustand",
+            "Mode": "Modus",
+            "Is connected": "Ist verbunden",
+            "Powered on": "Eingeschaltet",
+            "Ready for use": "Ist einsatzbereit",
+            "Bathing hour": "Badezeit Stunde",
+            "Selected hour": "Startzeit Stunde",
+            "Selected minute": "Startzeit Minute",
+            "Current temperature": "Aktuelle Temperatur",
+            "Current humidity": "Aktuelle Feuchtigkeit",
+            "Selected Sauna Temperature": "Gewünschte Sauna Temperatur",
+            "Selected Sanarium Temperature": "Gewünschte SANARIUM Temperatur",
+            "Selected Sanarium Humidity": "Gewünschte SANARIUM Feuchtigkeit",
+            "Selected Infrared Temperature": "Gewünschte Infrarot Temperatur",
+            "Status message": "Statusmeldung",
+            "Last error message": "Letzte Fehlermeldung",
+            "Klafs Sauna": "KLAFS Sauna",
+            "Disable instance": "Instanz deaktivieren",
+            "Sauna Type": "Saunatyp",
+            "PIN Code": "PIN-Code",
+            "Basic configuration": "Basiskonfiguration",
+            "Update interval": "Aktualisierungsintervall",
+            "Instance has no active gateway": "Die Instanz hat kein aktives Gateway",
+            "Sauna": "Sauna",
+            "SANARIUM®": "SANARIUM®",
+            "Infrared": "Infrarot",
+            "Sauna with SANARIUM®": "Sauna mit SANARIUM®",
+            "Update data": "Sauna aktualisieren",
+            "Send changes to sauna": "Änderungen an Sauna senden"
+        }
+    }
+}

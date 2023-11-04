@@ -121,7 +121,7 @@ trait KlafsSaunaLocalLib
                 'caption' => 'Sauna',
             ],
             self::$KLAFS_TYPE_SANARIUM => [
-                'caption' => 'Sauna & SANARIUM®',
+                'caption' => 'Sauna with SANARIUM®',
             ],
             self::$KLAFS_TYPE_INFRARED => [
                 'caption' => 'Infrared',

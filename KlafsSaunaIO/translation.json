@@ -1,0 +1,37 @@
+{
+    "translations": {
+        "de": {
+            "Username must be specified": "Bitte Benutzernamen eingeben",
+            "Password must be specified": "Bitte Passwort eingeben",
+            "Klafs Sauna Control": "Klafs Sauna Control",
+            "Disable instance": "Instanz deaktivieren",
+            "Log in with your KLAFS sauna app account: https://sauna-app.klafs.com": "Melde dich mit deinem KLAFS Sauna-App-Konto an: https://sauna-app.klafs.com",
+            "Important: Please ensure you enter the correct credentials.\\nKLAFS blocks the user account after 3 failed login attempts.\\nReset your password if you forget it.": "Bitte stell sicher, dass du die richtigen Anmeldeinformationen eingibst.\nKLAFS sperrt das Benutzerkonto nach 3 fehlgeschlagenen Anmeldeversuchen.\nSetze dein Passwort zurück, wenn du es vergessen hast.",
+            "This module disables automatic login after the first failed login attempt.\\nYou then have to reactivate automatic login using the “Reset login attempts” button.": "Dieses Modul sperrt die automatische Anmeldung nach dem ersten fehlgeschlagenen Anmeldeversuch.\nDu musst die automatische Anmeldung dann mit dem Button \"Anmeldeversuche zurücksetzen\" wieder aktivieren.",
+            "Username": "Benutzername",
+            "Password": "Passwort",
+            "Account data": "Zugangsdaten",
+            "Test access": "Zugang prüfen",
+            "Reset Login Failures": "Anmeldeversuche zurücksetzen",
+            "Display token": "Anmeldetoken anzeigen",
+            "Clear token": "Anmeldetoken löschen",
+            "Too many login failures: ": "Zu viele fehlgeschlagene Anmeldeversuche: ",
+            "Please ensure logged in successfully into the app or sauna web app or reset your password.": "Bitte stelle sicher, dass du dich erfolgreich auf der Sauna-App-Webseite oder in der App anmelden kannst oder setze dein Passwort zurück.",
+            "After 3 unsuccessful login attempts, klafs suspends your account.": "Nach 3 fehlgeschlagenen Anmeldeversuchen sperrt KLAFS dein Benutzerkonto.",
+            "Click the button \"RESET LOGIN FAILURES\" after you have entered the correct login credentials to unlock the automatic login.": "Klicke auf den Button \"ANMELDEVERSUCHE ZURÜCKSETZEN\" um die automatische Anmeldung wieder zu aktivieren. Stelle sicher, dass du die korrekten Zugangsdaten eingegeben hast.",
+            "Username/Password is incorrect!": "Benutzername und/oder Passwort ist falsch!",
+            "The login feature is locked until you have ensured that you have entered your correct login information.": "Die automatische Anmeldung ist gesperrt. Bitte stelle sicher, die korrekten Zugangsdaten einzugeben, um die automatische Anmeldung wieder zu aktivieren.",
+            "Please note that KLAFS will block your account after 3 failed login attempts.": "Nach 3 fehlgeschlagenen Anmeldeversuchen sperrt KLAFS dein Benutzerkonto.",
+            "Click on the “RESET LOGIN FAILURES” button to reactivate the automatic login.": "Klicke auf den Button \"ANMELDEVERSUCHE ZURÜCKSETZEN\" um die automatische Anmeldung wieder zu aktivieren.",
+            "Login successful.": "Anmeldung erfolgreich.",
+            "Saunas found: %d": "Saunas gefunden: %d",
+            "No cookie data available.": "Keine Cookie-Informationen verfügbar.",
+            "No sauna GUID given.": "Keine Sauna GUID angegeben.",
+            "No sauna PIN given.": "Kein Sauna PIN-Code angegeben.",
+            "The sauna temperature must be between 10°C and 100°C.": "Die Temperatur der Sauna muss zwischen 10°C und 100°C liegen.",
+            "The sanarium temperature must be between 40°C and 75°C.": "Die SANARIUM-Temperatur muss zwischen 40°C und 75°C liegen.",
+            "The sanarium humidity level must be between 1 and 10.": "Die SANARIUM-Feuchtigkeit muss zwischen 1 und 10 liegen.",
+            "The infrared temperature must be between 20°C and 40°C.": "Die Infrarot-Temperatur muss zwischen 20°C und 40°C liegen."
+        }
+    }
+}

@@ -90,6 +90,7 @@ class KlafsSaunaConfigurator extends IPSModule
             return $entries;
         }
 
+        // Get all saunas from KLAFS backend
         $categoryId = $this->ReadPropertyInteger('ImportCategoryID');
         $dataCache  = $this->ReadDataCache();
         if (isset($dataCache['data']['saunas'])) {
@@ -135,13 +136,18 @@ class KlafsSaunaConfigurator extends IPSModule
                         $saunaType      = IPS_GetProperty($instanceId, 'Type');
                         break;
                     }
+
+                    // check if instance has same IO
+                    if ($instanceId && IPS_GetInstance($instanceId)['ConnectionID'] != IPS_GetInstance($this->InstanceID)['ConnectionID']) {
+                        continue;
+                    }
                 }
 
                 $entries[] = [
                     'instanceID'   => $myInstanceId,
                     'instanceName' => $myInstanceName,
                     'GUID'         => $saunaGuid,
-                    'Name'         => $saunaName,
+                    'name'         => $saunaName,
                     'create'       => [
                         'moduleID'      => $deviceGuid,
                         'location'      => $this->GetConfiguratorLocation($categoryId),
@@ -192,7 +198,7 @@ class KlafsSaunaConfigurator extends IPSModule
 
     private function GetFormElements()
     {
-        $formElements = $this->GetCommonFormElements('KlafsSaunaConfigurator');
+        $formElements = $this->GetCommonFormElements('Klafs Sauna Configurator');
 
         if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
             return $formElements;
@@ -206,13 +212,13 @@ class KlafsSaunaConfigurator extends IPSModule
 
         $entries        = $this->getConfiguratorValues();
         $formElements[] = [
-            'name'              => 'KlafsSaunaConfigurator',
+            'name'              => 'Klafs Sauna Configurator',
             'type'              => 'Configurator',
             'rowCount'          => count($entries),
             'add'               => false,
             'delete'            => false,
             'sort'              => [
-                'column'    => 'Name',
+                'column'    => 'name',
                 'direction' => 'ascending'
             ],
             'columns'           => [
@@ -224,7 +230,7 @@ class KlafsSaunaConfigurator extends IPSModule
                 ],
                 [
                     'caption' => 'Name',
-                    'name'    => 'Name',
+                    'name'    => 'name',
                     'width'   => 'auto'
                 ],
             ],

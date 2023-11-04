@@ -218,7 +218,11 @@ class KlafsSaunaIO extends IPSModule
             'items'   => [
                 [
                     'type'    => 'Label',
-                    'caption' => 'Log in with your KLAFS sauna app account: ' . self::$apiBaseUrl,
+                    'caption' => 'Log in with your KLAFS sauna app account: https://sauna-app.klafs.com',
+                ],
+                [
+                    'type'    => 'Label',
+                    'caption' => 'Important: Please ensure you enter the correct credentials.\nKLAFS blocks the user account after 3 failed login attempts.\nReset your password if you forget it.',
                 ],
                 [
                     'name'    => 'username',
@@ -229,6 +233,10 @@ class KlafsSaunaIO extends IPSModule
                     'name'    => 'password',
                     'type'    => 'PasswordTextBox',
                     'caption' => 'Password',
+                ],
+                [
+                    'type'    => 'Label',
+                    'caption' => 'This module disables automatic login after the first failed login attempt.\nYou then have to reactivate automatic login using the “Reset login attempts” button.',
                 ],
             ],
             'caption' => 'Account data',
@@ -623,7 +631,10 @@ class KlafsSaunaIO extends IPSModule
 
         $xpath  = new \DOMXPath($doc);
         $errors = $xpath->query('//div[@class="validation-summary-errors"]/ul/li');
-        $this->SendDebug(__FUNCTION__, ' => errors=' . print_r($errors, true), 0);
+
+        if ($errors->length > 0) {
+            $this->SendDebug(__FUNCTION__, ' => errors=' . print_r($errors, true), 0);
+        }
 
         foreach ($errors as $error) {
             $errorMessage = html_entity_decode($error->nodeValue);
@@ -679,11 +690,13 @@ class KlafsSaunaIO extends IPSModule
      */
     private function UpdateSauna(string $saunaId)
     {
-        // TODO read one specific sauna data
         $this->SendDebug(__FUNCTION__, 'update sauna=' . $saunaId, 0);
 
         $jsonData = json_encode([ 'saunaId' => $saunaId ]);
         $response = $this->CallApi('/Control/GetSaunaStatus', 'POST', $jsonData);
+
+        // TODO for the future:
+        // do a second request to get detailed information about the sauna to prefill information like type for the configurator later
 
         list($header, $body) = explode("\r\n\r\n", $response, 2);
         $data = json_decode($body, true);
@@ -698,7 +711,7 @@ class KlafsSaunaIO extends IPSModule
      *
      * @param $data
      *
-     * @return void
+     * @return mixed
      */
     private function PostConfigChange($data)
     {
@@ -720,7 +733,9 @@ class KlafsSaunaIO extends IPSModule
     }
 
     /**
-     * @return void
+     * @param $data
+     *
+     * @return mixed|string
      */
     private function PowerOn($data)
     {
@@ -856,6 +871,11 @@ class KlafsSaunaIO extends IPSModule
         return $data;
     }
 
+    /**
+     * @param string $saunaId
+     *
+     * @return void
+     */
     private function PowerOff(string $saunaId)
     {
         $data = json_encode([
@@ -865,5 +885,12 @@ class KlafsSaunaIO extends IPSModule
         ]);
 
         $response = $this->CallApi('/Control/PostPowerOff', 'POST', $data);
+
+        list($header, $body) = explode("\r\n\r\n", $response, 2);
+        $data = json_decode($body, true);
+
+        $this->SendDebug(__FUNCTION__, 'PostPowerOff response=' . print_r($data, true), 0);
+
+        return $data;
     }
 }

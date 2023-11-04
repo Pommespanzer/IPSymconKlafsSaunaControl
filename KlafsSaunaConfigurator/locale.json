@@ -1,8 +1,8 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Category for KLAFS saunas to be created": "Kategorie für die anzulegende Saunas",
+            "Klafs Sauna Configurator": "KLAFS Sauna Konfigurator"
         }
     }
 }

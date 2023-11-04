@@ -1,0 +1,22 @@
+{
+  "translations": {
+    "de": {
+      "__variableprofile__": "KlafsSauna.YesNo",
+      "Off": "Aus",
+      "On": "An",
+
+      "__variableprofile__": "KlafsSauna.Power",
+      "No": "Nein",
+      "Yes": "Ja",
+
+      "__variableprofile__": "KlafsSauna.Type",
+      "unknown": "Unbekannt",
+      "Sauna": "Sauna",
+      "SANARIUM®": "SANARIUM®",
+      "Infrared": "Infrarot",
+
+      "__variableprofile__": "KlafsSauna.Mode",
+      "Sauna with SANARIUM®": "Sauna mit SANARIUM®"
+    }
+  }
+}

@@ -141,5 +141,8 @@ Ob die Sauna angeschaltet ist.
 
 ## 6. Versions-Historie
 
+- 0.2 @ 04.11.2023  
+  Übersetzungen hinzugefügt
+
 - 0.1 @ 02.11.2023  
   Initiale Version (Beta)
