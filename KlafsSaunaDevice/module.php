@@ -370,9 +370,6 @@ class KlafsSaunaDevice extends IPSModule
                 } else {
                     $result = $this->PowerOff();
                 }
-
-                // get new sauna data 5 seconds after sending PowerOn/PowerOff command to KLAFS backend
-                $this->SetUpdateInterval(5000);
                 break;
             case 'Mode':
                 $result = $this->SelectMode($value);
