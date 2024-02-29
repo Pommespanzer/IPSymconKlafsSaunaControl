@@ -11,9 +11,10 @@ class KlafsSaunaIO extends IPSModule
     use KlafsSauna\StubsCommonLib;
     use KlafsSaunaLocalLib;
 
-    private static $apiBaseUrl           = 'https://sauna-app.klafs.com';
+    private static $apiBaseUrl           = 'https://sauna-app-19.klafs.com';
+    private static $apiBasePath          = 'SaunaApp';
     private static $allowedLoginAttempts = 1;
-    private static $userAgent            = 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.71 Safari/537.36';
+    private static $userAgent            = 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
     private static $cookieExpire  = 60 * 60 * 24 * 2;
     private static $semaphoreTime = 5 * 1000;
@@ -367,8 +368,6 @@ class KlafsSaunaIO extends IPSModule
             return;
         }
 
-        $saunas = $this->GetSaunas();
-
         // if username/password is wrong, inform the user
         $status = $this->GetStatus();
         if ($status === self::$IS_INVALIDDATA) {
@@ -385,6 +384,8 @@ class KlafsSaunaIO extends IPSModule
             $this->MaintainStatus(self::$IS_INVALIDDATA);
             return false;
         }
+
+        $saunas = $this->GetSaunas();
 
         $popupMessage = [
             'Login successful.',
@@ -469,11 +470,15 @@ class KlafsSaunaIO extends IPSModule
         }
 
         $data    = [
-            'UserName' => $username,
-            'Password' => $password,
+            'UserName'   => $username,
+            'Password'   => $password,
+            'RememberMe' => 'false',
         ];
         $headers = [
             'Content-Type: application/x-www-form-urlencoded',
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7r',
+            'Accept-Encoding: gzip, deflate, br',
+            'Accept-Language: de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
             self::$userAgent,
         ];
 
@@ -525,6 +530,10 @@ class KlafsSaunaIO extends IPSModule
             $cookie  = $this->GetAccessCookie();
             $headers = [
                 'Content-Type: application/json',
+                //'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept: application/json, text/javascript, */*; q=0.01',
+                'Accept-Encoding: gzip, deflate, br',
+                'Accept-Language: de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
                 self::$userAgent,
                 sprintf('Cookie: %s', $cookie),
             ];
@@ -636,6 +645,13 @@ class KlafsSaunaIO extends IPSModule
             $this->SendDebug(__FUNCTION__, ' => errors=' . print_r($errors, true), 0);
         }
 
+        if (preg_match('/"Success":true/', $response)) {
+            preg_match('/ErrorMessage":"?(.*)"/', $response, $errorMessage);
+            $errorMessage = $errorMessage[1] ?: 'Unknown error';
+
+            $this->SendDebug(__FUNCTION__, ' => errors success false=' . print_r($errorMessage, true), 0);
+        }
+
         foreach ($errors as $error) {
             $errorMessage = html_entity_decode($error->nodeValue);
             $result[]     = $errorMessage;
@@ -652,33 +668,34 @@ class KlafsSaunaIO extends IPSModule
      */
     private function GetSaunas()
     {
-        $response = $this->CallApi('/Control/', 'GET');
+        $response = $this->CallApi('/' . self::$apiBasePath . '/ChangeSettings', 'GET');
+        $this->SendDebug(__FUNCTION__, print_r($response, true) . ' => GetSaunas', 0);
 
         $dom = new \DOMDocument();
         @$dom->loadHTML($response);
         $xpath = new \DOMXPath($dom);
 
-        $links  = $xpath->query('//a[contains(@class, "ksa-iw-saunas-link")]');
+        $rows   = $xpath->query('//tr[contains(@class, "iw-sauna-webgrid-row-style")]');
         $saunas = [];
-        /** @var \DOMElement $link */
-        foreach ($links as $link) {
-            $href = $link->getAttribute('href');
-            $guid = null;
-            preg_match('/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/', $href, $guid);
+        foreach ($rows as $row) {
+            $saunaIdNode    = $xpath->query('//label[contains(@id, "lblsaunaId")]', $row);
+            $saunaLabelNode = $xpath->query('//span[contains(@id, "lbldeviceName")]', $row);
+            $saunaId        = $saunaIdNode->item(0)->nodeValue;
+            $saunaLabel     = $saunaLabelNode->item(0)->nodeValue;
+            $guid           = null;
 
+            preg_match('/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/', $saunaId, $guid);
             if (is_array($guid)) {
                 $guid = $guid[0];
             }
 
-            // finde name
-            $label = $xpath->query('//span[contains(@id, "lbldeviceName")]', $link);
-
             $saunas[] = [
                 'guid' => $guid,
-                'name' => $label->item(0)->nodeValue,
-                'href' => $href,
+                'name' => $saunaLabel,
             ];
         }
+
+        $this->SendDebug(__FUNCTION__, print_r($saunas, true) . ' => GetSaunas', 0);
 
         return $saunas;
     }
@@ -692,8 +709,9 @@ class KlafsSaunaIO extends IPSModule
     {
         $this->SendDebug(__FUNCTION__, 'update sauna=' . $saunaId, 0);
 
+        $headers  = [];
         $jsonData = json_encode([ 'saunaId' => $saunaId ]);
-        $response = $this->CallApi('/Control/GetSaunaStatus', 'POST', $jsonData);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/GetData?id=' . $saunaId, 'GET', $jsonData, [], $headers);
 
         // TODO for the future:
         // do a second request to get detailed information about the sauna to prefill information like type for the configurator later
@@ -713,7 +731,7 @@ class KlafsSaunaIO extends IPSModule
      *
      * @return mixed
      */
-    private function PostConfigChange($data)
+    private function _PostConfigChange($data)
     {
         $changedData = [
             'changedData' => $data,
@@ -722,7 +740,7 @@ class KlafsSaunaIO extends IPSModule
         $this->SendDebug(__FUNCTION__, 'post config change=' . print_r($changedData, true), 0);
 
         $jsonData = json_encode($changedData);
-        $response = $this->CallApi('/Control/PostConfigChange', 'POST', $jsonData);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/PostConfigChange', 'POST', $jsonData);
 
         list($header, $body) = explode("\r\n\r\n", $response, 2);
         $data = json_decode($body, true);
@@ -735,14 +753,140 @@ class KlafsSaunaIO extends IPSModule
     /**
      * @param $data
      *
-     * @return mixed|string
+     * @return mixed
+     */
+    private function PostConfigChange($data)
+    {
+        $this->SendDebug(__FUNCTION__, 'PostConfigChange=' . print_r($data, true), 0);
+
+        $this->SetMode($data);
+        $this->ChangeTemperature($data);
+        $this->ChangeHumidityLevel($data);
+        $this->SetSelectedTime($data);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return mixed|void
+     */
+    private function SetMode($data)
+    {
+        if ($data['saunaSelected']) {
+            $mode = self::$KLAFS_MODE_SAUNA;
+        } elseif ($data['sanariumSelected']) {
+            $mode = self::$KLAFS_MODE_SANARIUM;
+        } elseif ($data['irSelected']) {
+            $mode = self::$KLAFS_MODE_INFRARED;
+        } else {
+            $this->SendDebug(__FUNCTION__, 'no mode selected => skip changing mode', 0);
+            return;
+        }
+
+        $postData = [ 'id' => $data['saunaId'], 'selected_mode' => $mode ];
+        $jsonData = json_encode($postData);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/SetMode', 'POST', $jsonData);
+
+        list($header, $body) = explode("\r\n\r\n", $response, 2);
+        $data = json_decode($body, true);
+
+        $this->SendDebug(__FUNCTION__, 'SetMode response=' . print_r($data, true), 0);
+
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return mixed|void
+     */
+    private function ChangeTemperature($data)
+    {
+        if ($data['saunaSelected']) {
+            $temperature = $data['selectedSaunaTemperature'];
+        } elseif ($data['sanariumSelected']) {
+            $temperature = $data['selectedSanariumTemperature'];
+        } elseif ($data['irSelected']) {
+            $temperature = $data['selectedIrTemperature'];
+        } else {
+            $this->SendDebug(__FUNCTION__, 'no mode selected => skip changing temperature', 0);
+            return;
+        }
+
+        $postData = [ 'id' => $data['saunaId'], 'temperature' => $temperature ];
+        $jsonData = json_encode($postData);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/ChangeTemperature', 'POST', $jsonData);
+
+        list($header, $body) = explode("\r\n\r\n", $response, 2);
+        $data = json_decode($body, true);
+
+        $this->SendDebug(__FUNCTION__, 'ChangeTemperature response=' . print_r($data, true), 0);
+
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return mixed|void
+     */
+    private function ChangeHumidityLevel($data)
+    {
+        if (!$data['sanariumSelected']) {
+            $this->SendDebug(__FUNCTION__, 'sanarium mode is not selected => skip changing humidity level', 0);
+            return;
+        }
+
+        $postData = [ 'id' => $data['saunaId'], 'level' => $data['selectedHumLevel'] ];
+        $jsonData = json_encode($postData);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/ChangeHumLevel', 'POST', $jsonData);
+
+        list($header, $body) = explode("\r\n\r\n", $response, 2);
+        $data = json_decode($body, true);
+
+        $this->SendDebug(__FUNCTION__, 'ChangeHumidityLevel response=' . print_r($data, true), 0);
+
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return mixed|void
+     */
+    private function SetSelectedTime($data)
+    {
+        $hour = $data['selectedHour'];
+        $min = $data['selectedMinute'];
+        if ($hour <0 || $hour >23 || $min <0 || $min >59){
+            $this->SendDebug(__FUNCTION__, 'invalid time format=' . $hour . ':' . $min . ' => skip set time', 0);
+            return;
+        }
+
+        $postData = [ 'id' => $data['saunaId'], 'time_set' => true, 'hours' => $hour, 'minutes' => $min ];
+        $jsonData = json_encode($postData);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/SetSelectedTime', 'POST', $jsonData);
+
+        list($header, $body) = explode("\r\n\r\n", $response, 2);
+        $data = json_decode($body, true);
+
+        $this->SendDebug(__FUNCTION__, 'SetSelectedTime response=' . print_r($data, true), 0);
+
+        return $data;
+    }
+
+    /**
+     * @param $data
+     *
+     * @return string
      */
     private function PowerOn($data)
     {
         $this->SendDebug(__FUNCTION__, 'PowerOn=' . print_r($data, true), 0);
 
-        $saunaGuid = $data['saunaData']['guid'];
-        $saunaPin  = $data['saunaData']['pin'];
+        $changedData = $data['changedData'];
+        $saunaGuid   = $data['saunaData']['guid'];
+        $saunaPin    = $data['saunaData']['pin'];
         if (empty($saunaGuid)) {
             $this->SendDebug(__FUNCTION__, 'no sauna guid given', 0);
 
@@ -757,115 +901,34 @@ class KlafsSaunaIO extends IPSModule
         $this->SendDebug(__FUNCTION__, 'SaunaID=' . $saunaGuid, 0);
         $this->SendDebug(__FUNCTION__, 'PIN=' . $saunaPin, 0);
 
-        $changedData            = $data['changedData'];
-        $errorMessages          = [];
-        $changedData['saunaId'] = $saunaGuid;
-
-        // KLAFs is sending 141 if current temperature is 0
-        if ((int) $changedData['currentTemperature'] === 0) {
-            $changedData['currentTemperature'] = 141;
-        }
-        if (empty($changedData['statusMessage'])) {
-            $changedData['statusMessage'] = null;
-        }
-        $changedData['statusCode']      = 0;
-        $changedData['showBathingHour'] = false;
-        $changedData['selectedIrLevel'] = 0;
-
-        if (isset($changedData['saunaSelected']) && $changedData['saunaSelected']) {
-            $selectedTemperature = $changedData['selectedSaunaTemperature'];
-            if ($selectedTemperature < 10 || $selectedTemperature > 100) {
-                $errorMessages[] = $this->Translate('The sauna temperature must be between 10°C and 100°C.');
-            }
-        } elseif (isset($changedData['sanariumSelected']) && $changedData['sanariumSelected']) {
-            $selectedTemperature = $changedData['selectedSanariumTemperature'];
-            if ($selectedTemperature < 40 || $selectedTemperature > 75) {
-                $errorMessages[] = $this->Translate('The sanarium temperature must be between 40°C and 75°C.');
-            }
-
-            $selectedHumLevel = $changedData['selectedHumLevel'];
-            if ($selectedHumLevel < 1 || $selectedHumLevel > 10) {
-                $errorMessages[] = $this->Translate('The sanarium humidity level must be between 1 and 10.');
-            }
-        } elseif (isset($changedData['irSelected']) && $changedData['irSelected']) {
-            $selectedTemperature = $changedData['selectedIrTemperature'];
-            if ($selectedTemperature < 20 || $selectedTemperature > 40) {
-                $errorMessages[] = $this->Translate('The infrared temperature must be between 20°C and 40°C.');
-            }
-        }
-
-        if (!empty($errorMessages) && count($errorMessages) > 0) {
-            $errorMessage = implode(' ', $errorMessages);
-            $this->SendDebug(__FUNCTION__, $errorMessage, 0);
-
-            return $data['error'] = $errorMessage;
-        }
-
-        // set data to sauna
-        $changedData = $this->PostConfigChange($changedData);
-
         // if sauna is not powered on already, send command with pin
         $poweredOn = (bool) $changedData['isPoweredOn'];
         if ($poweredOn) {
+            $this->SendDebug(__FUNCTION__, 'Sauna is already powered on => skip powering on request', 0);
             return $changedData;
         }
 
-        $this->SendDebug(__FUNCTION__, 'power on sauna', 0);
+        $postData = json_encode([
+            'id'            => $saunaGuid,
+            'pin'           => $saunaPin,
+            'time_selected' => $changedData['timeSelected'],
+            'sel_hour'      => $changedData['selectedHour'],
+            'sel_min'       => $changedData['selectedMinute'],
+        ]);
 
-        $cookie  = $this->GetAccessCookie();
-        $headers = [
-            self::$userAgent,
-            sprintf('Cookie: %s', $cookie),
-        ];
-
-        $queryParams       = [ 's' => $saunaGuid ];
-        $antiforgeryCookie = null;
-        $antiforgeryDate   = null;
-        $response          = $this->CallApi('/Control/EnterPin', 'GET', [], $queryParams, $headers);
-        $this->SendDebug(__FUNCTION__, ' => cookie=' . $cookie, 0);
-        $this->SendDebug(__FUNCTION__, ' => send headers=' . print_r($headers, true), 0);
-        $this->SendDebug(__FUNCTION__, ' => send query params=' . print_r($queryParams, true), 0);
-        $this->SendDebug(__FUNCTION__, ' => response' . print_r($response, true), 0);
-
-        // alternative, get __RequestVerificationToken from hidden input in enter pin form
-        $dom = new \DOMDocument();
-        @$dom->loadHTML($response);
-        $xpath = new \DOMXPath($dom);
-        $nodes = $xpath->query('//input[@type="hidden"][@name="__RequestVerificationToken"]');
-        if ($nodes->length > 0) {
-            $token = $nodes->item(0)->getAttribute('value');
-            $this->SendDebug(__FUNCTION__, ' => __RequestVerificationToken found, =' . $token, 0);
-
-            $postData = [
-                'RequestVerificationToken' => $token,
-                'Pin'                      => $saunaPin,
-                'saunaId'                  => $saunaGuid,
-            ];
-        } else {
-            // otherwise try to extract antiforgery cookie
-            preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $response, $matches);
-            foreach ($matches[1] as $cookie) {
-                list($cookieName, $cookieValue) = explode('=', $cookie, 2);
-                $antiforgeryCookie = sprintf('%s=%s;', $cookieName, $cookieValue);
-                $antiforgeryDate   = date("Y-m-d H:i:s");
-            }
-            $this->SendDebug(__FUNCTION__, ' => antiforgery cookie=' . $antiforgeryCookie . ', antiforgery cookie date=' . $antiforgeryDate, 0);
-
-            $postData = sprintf('%s&Pin=%s&saunaId=%s', $antiforgeryCookie, $saunaPin, $saunaGuid);
-        }
-
-        $this->SendDebug(__FUNCTION__, 'enter pin and power on sauna', 0);
-        // Now send request again with antiforgery cookie and pin code
-        $response = $this->CallApi('/Control/EnterPin', 'POST', $postData, [], $headers);
-        $errors   = $this->ValidateResponse($response);
-        $this->SendDebug(__FUNCTION__, ' => send post data=' . print_r($postData, true), 0);
-        $this->SendDebug(__FUNCTION__, ' => response=' . print_r($response, true), 0);
-
+        $response = $this->CallApi('/' . self::$apiBasePath . '/StartCabin', 'POST', $postData);
         list($header, $body) = explode("\r\n\r\n", $response, 2);
-        $data = json_decode($body, true);
+        $responseData = json_decode($body, true);
 
+        $this->SendDebug(__FUNCTION__, ' => StartCabin Send POST data=' . print_r($postData, true), 0);
+        $this->SendDebug(__FUNCTION__, 'StartCabin response=' . print_r($responseData, true), 0);
+
+        $errors = $this->ValidateResponse($response);
         if (!empty($errors)) {
             $data['lastErrorMessage'] = implode(' ', $errors);
+            $data['isPoweredOn']      = false;
+        } else {
+            $data['isPoweredOn'] = true;
         }
 
         return $data;
@@ -884,12 +947,12 @@ class KlafsSaunaIO extends IPSModule
             ],
         ]);
 
-        $response = $this->CallApi('/Control/PostPowerOff', 'POST', $data);
+        $response = $this->CallApi('/' . self::$apiBasePath . '/StopCabin', 'POST', $data);
 
         list($header, $body) = explode("\r\n\r\n", $response, 2);
         $data = json_decode($body, true);
 
-        $this->SendDebug(__FUNCTION__, 'PostPowerOff response=' . print_r($data, true), 0);
+        $this->SendDebug(__FUNCTION__, 'StopCabin response=' . print_r($data, true), 0);
 
         return $data;
     }

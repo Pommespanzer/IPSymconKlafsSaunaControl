@@ -17,9 +17,9 @@
 
 ## 1. Funktionsumfang
 
-Steuerung von Saunen der Firma [KLAFS](https://www.klafs.de/) über die [Sauna-App](https://sauna-app.klafs.com/) von Klafs. Zur Steuerung ist ein KLAFS-Konto erforderlich sowie die Sonderausstattung "KLAFS Sauna App". Das KNX-Modul ist nicht erforderlich.  
+Steuerung von Saunen der Firma [KLAFS](https://www.klafs.de/) über die [Sauna-App](https://sauna-app-19.klafs.com/) von Klafs. Zur Steuerung ist ein KLAFS-Konto erforderlich sowie die Sonderausstattung "KLAFS Sauna App". Das KNX-Modul ist nicht erforderlich.  
 
-Derzeit lassen sich Saunen mit oder ohne SANARIUM®-Funktion sowie Infrarot-Kabinen steuern. In der SANARIUM®-Funktion lässt sich die Luftfeuchtigkeit in 10 Stufen regulieren.  
+Derzeit lassen sich Saunen mit oder ohne SANARIUM®-Funktion steuern. In der SANARIUM®-Funktion lässt sich die Luftfeuchtigkeit in 10 Stufen regulieren.  
 
 Folgende Messwerte können erfasst werden: Aktuelle Temperatur, Aktuelle Luftfeuchtigkeit (nur SANARIUM®).
 
@@ -31,18 +31,17 @@ Folgende Messwerte können erfasst werden: Aktuelle Temperatur, Aktuelle Luftfeu
  - Gewünschte Temperatur
    - Sauna: 10-100°C
    - SANARIUM®: 40-75°C
-   - Infrarot: 20-40°C
  - Gewünschte Luftfeuchtigkeit (SANARIUM® Stufe 1-10)
- - Auswahl des Betriebsmodus (Sauna, SANARIUM® oder Infrarot)
+ - Auswahl des Betriebsmodus (Sauna oder SANARIUM®)
  - Anpassen der gewünschten Temperatur während des Betriebs
  - Unterstützung mehrerer Saunen
 
 ## 2. Voraussetzungen
 
 1. IP-Symcon ab Version 6
-2. Ein eingerichtetes Konto in der [KLAFS Sauna-App](https://sauna-app.klafs.com/)
+2. Ein eingerichtetes Konto in der [KLAFS Sauna-App](https://sauna-app-19.klafs.com/)
 3. Eine Sauna mit der Sonderausstattung KLAFS Sauna App
-4. Die Sauna selbst muss zuvor mit dem [Sauna-App-Konto](https://sauna-app.klafs.com/) verknüpft werden
+4. Die Sauna selbst muss zuvor mit dem [Sauna-App-Konto](https://sauna-app-19.klafs.com/) verknüpft werden
 
 ## 3. Installation
 
@@ -62,7 +61,7 @@ Folgende Messwerte können erfasst werden: Aktuelle Temperatur, Aktuelle Luftfeu
    1. Instanz öffnen, dort tauchen nun alle in der App eingerichteten Saunen auf
    2. Sauna hinzufügen
 4. Die erstellte Sauna (KlafsSaunaDevice) öffnen und konfigurieren
-   1. Typ der Sauna auswählen (Sauna, Sauna mit SANARIUM®, Infrarot)
+   1. Typ der Sauna auswählen (Sauna oder Sauna mit SANARIUM®)
    2. PIN-Code eingeben (muss vorher an in Steuerung der Sauna eingestellt werden)
    3. Update Interval eingeben. Empfehlung: 60 Sekunden
 
@@ -86,22 +85,18 @@ Sendet alle geänderten Einstellungen über die Sauna-App an die Sauna.
 Bis KLAFS die geänderten Einstellungen an die Sauna übertragen hat, können einige Sekunden vergehen.
 
 `Klafs_SetMode(integer $InstanceID, int $Mode)`<br>
-Setzt den gewünschten Bademodus: 1 = Sauna, 2 = SANARIUM®, 3 = Infrarot
+Setzt den gewünschten Bademodus: 1 = Sauna, 2 = SANARIUM®
 
 `Klafs_SetStartingTime(integer $InstanceID, int $hour, int $Minute)`<br>
 Setzt den gewünschten Badebeginn. Ein Wert in der Zukunft gilt als Vorwahlbetrieb.
 
 `Klafs_SetSaunaTemperature(integer $InstanceID, int $Value)`<br>
-Setzt die gewünschte Temperatur für die Sauna (nicht SANARIUM® oder Infrarot)
+Setzt die gewünschte Temperatur für die Sauna (nicht SANARIUM®)
 Einstellbar zwischen 10°C und 100°C
 
 `Klafs_SetSanariumTemperature(integer $InstanceID, int $Value)`<br>
-Setzt die gewünschte Temperatur für das SANARIUM® (nicht Sauna oder Infrarot).  
+Setzt die gewünschte Temperatur für das SANARIUM® (nicht Sauna).  
 Einstellbar zwischen 40°C und 75°C
-
-`Klafs_SetInfraredTemperature(integer $InstanceID, int $Value)`<br>
-Setzt die gewünschte Temperatur für die Infrarot-Sauna (nicht Sauna oder SANARIUM®).  
-Einstellbar zwischen 20°C und 40°C.
 
 `Klafs_SetSanariumHumidity(integer $InstanceID, int $Value)`<br>
 Setzt die gewünschte Luftfeuchtig für das SANARIUM®.  
@@ -141,8 +136,12 @@ Ob die Sauna angeschaltet ist.
 
 ## 6. Versions-Historie
 
+- 0.3 @ 29.02.2024  
+  - Sauna-App URL geändert  
+  - Support für Infrarot-Saunen eingestellt  
+  
 - 0.2 @ 04.11.2023  
-  Übersetzungen hinzugefügt
+  - Übersetzungen hinzugefügt  
 
 - 0.1 @ 02.11.2023  
-  Initiale Version (Beta)
+  - Initiale Version (Beta)  

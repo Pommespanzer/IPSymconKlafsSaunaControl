@@ -123,7 +123,6 @@ class KlafsSaunaConfigurator extends IPSModule
 
                 $saunaGuid = $sauna['guid'];
                 $saunaName = $sauna['name'];
-                $saunaType = 'Sauna';
 
                 $myInstanceId   = 0;
                 $myInstanceName = '';
@@ -133,7 +132,6 @@ class KlafsSaunaConfigurator extends IPSModule
 
                         $myInstanceId   = $instanceId;
                         $myInstanceName = IPS_GetName($instanceId);
-                        $saunaType      = IPS_GetProperty($instanceId, 'Type');
                         break;
                     }
 

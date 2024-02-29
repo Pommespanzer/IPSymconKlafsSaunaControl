@@ -42,6 +42,7 @@ class KlafsSaunaDevice extends IPSModule
         $this->RegisterPropertyInteger('BathingMinutes', 0);
         $this->RegisterPropertyInteger('SelectedHour', 0);   // 0 - 23, vorwahl
         $this->RegisterPropertyInteger('SelectedMinute', 0); // 0 - 59, vorwahl
+        $this->RegisterPropertyBoolean('TimeSelected', false);
 
         $this->RegisterPropertyFloat('CurrentHumidity', 0);
         $this->RegisterPropertyFloat('CurrentTemperature', 0);
@@ -164,6 +165,7 @@ class KlafsSaunaDevice extends IPSModule
         $this->MaintainVariable('IsConnected', $this->Translate('Is connected'), VARIABLETYPE_BOOLEAN, 'KlafsSauna.YesNo', $vPos++, true);
         $this->MaintainVariable('IsPoweredOn', $this->Translate('Powered on'), VARIABLETYPE_BOOLEAN, 'KlafsSauna.YesNo', $vPos++, true);
         $this->MaintainVariable('ReadyForUse', $this->Translate('Ready for use'), VARIABLETYPE_BOOLEAN, 'KlafsSauna.YesNo', $vPos++, true);
+        $this->MaintainVariable('TimeSelected', $this->Translate('Time selected'), VARIABLETYPE_BOOLEAN, 'KlafsSauna.YesNo', $vPos++, true);
 
         //$this->MaintainVariable('RemainingHours', $this->Translate('Remaining hours'), VARIABLETYPE_INTEGER, 'KlafsSauna.Hour', $vPos++, true);
         //$this->MaintainVariable('RemainingMinutes', $this->Translate('Remaining minutes'), VARIABLETYPE_INTEGER, 'KlafsSauna.Minute', $vPos++, true);
@@ -454,7 +456,12 @@ class KlafsSaunaDevice extends IPSModule
             'AsJson'   => true,
         ];
         $result   = $this->SendDataToParent(json_encode($SendData));
-        $data     = json_decode($result, true);
+
+        if ($result === null || $result === 'null') {
+            $this->SendDebug(__FUNCTION__, 'No sauna data found. => skip', 0);
+            return;
+        }
+        $data = json_decode($result, true);
 
         $this->SendDebug(__FUNCTION__, ' => data=' . print_r($data, true), 0);
 
@@ -798,6 +805,7 @@ class KlafsSaunaDevice extends IPSModule
             'isReadyForUse'               => [ 'ReadyForUse' ],
             'currentTemperature'          => [ 'CurrentTemperature' ],
             'currentHumidity'             => [ 'CurrentHumidity' ],
+            'timeSelected'                => [ 'TimeSelected' ],
             'selectedHour'                => [ 'SelectedHour' ],
             'selectedMinute'              => [ 'SelectedMinute' ],
             'bathingHours'                => [ 'BathingHours' ],

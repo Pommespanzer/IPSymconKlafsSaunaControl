@@ -5,7 +5,7 @@
             "Password must be specified": "Bitte Passwort eingeben",
             "Klafs Sauna Control": "Klafs Sauna Control",
             "Disable instance": "Instanz deaktivieren",
-            "Log in with your KLAFS sauna app account: https://sauna-app.klafs.com": "Melde dich mit deinem KLAFS Sauna-App-Konto an: https://sauna-app.klafs.com",
+            "Log in with your KLAFS sauna app account: https://sauna-app.klafs.com": "Melde dich mit deinem KLAFS Sauna-App-Konto an: https://sauna-app-19.klafs.com",
             "Important: Please ensure you enter the correct credentials.\\nKLAFS blocks the user account after 3 failed login attempts.\\nReset your password if you forget it.": "Bitte stell sicher, dass du die richtigen Anmeldeinformationen eingibst.\nKLAFS sperrt das Benutzerkonto nach 3 fehlgeschlagenen Anmeldeversuchen.\nSetze dein Passwort zurück, wenn du es vergessen hast.",
             "This module disables automatic login after the first failed login attempt.\\nYou then have to reactivate automatic login using the “Reset login attempts” button.": "Dieses Modul sperrt die automatische Anmeldung nach dem ersten fehlgeschlagenen Anmeldeversuch.\nDu musst die automatische Anmeldung dann mit dem Button \"Anmeldeversuche zurücksetzen\" wieder aktivieren.",
             "Username": "Benutzername",
